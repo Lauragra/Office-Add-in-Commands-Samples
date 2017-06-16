@@ -35,9 +35,10 @@ To implement the autoopen feature, you:
 - Specify the pane to be opened automatically.
 - Tag documents to automatically open the task pane.
 
+>**Important:** The pane that you designate to open automatically will only open if the add-in is already installed on the user's device. If the user does not have the add-in installed when they open a document, the autoopen feature will not work and the setting will be ignored. 
 
 ### Specify the pane to open
-To specify the pane to open automatically, set a [TaskpaneId](https://dev.office.com/reference/add-ins/manifest/action#taskpaneid) value of ***Office.AutoShowTaskpaneWithDocument***. You can only set this value on one task pane. If you set this value on multiple task panes, the first occurrence of the value will be recognized and the others will be ignored. 
+To specify the pane to open automatically, set a [TaskpaneId](https://dev.office.com/reference/add-ins/manifest/action#taskpaneid) value of **Office.AutoShowTaskpaneWithDocument**. You can only set this value on one task pane. If you set this value on multiple task panes, the first occurrence of the value will be recognized and the others will be ignored. 
           
     <Action xsi:type="ShowTaskpane">
          <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
@@ -45,22 +46,27 @@ To specify the pane to open automatically, set a [TaskpaneId](https://dev.office
     </Action>
      
 
-#### 2.-Tagging a document to trigger auto-open
-To trigger auto-open a document must be appropriately tagged. Documents that are not tagged will not trigger auto-open. You can tag a document in 2 main ways, choose the one that makes the most sense for your scenario:
+### Tag a document to automatically open a task pane
+
+Tag the document to trigger the autoopen feature in one of two ways. 
 
 
-##### Client side
-Set the ***Office.AutoShowTaskpaneWithDocument*** setting to ***true*** using Office.js. Use this method if you need to tag the document as part of your add-in interaction (E.g. as soon as the user creates a binding, or clicks on a UI affordance on your add-in to indicate they want the pane to auto-open) 
+#### Tag the document on the client side
+Use the Office.js [settings.set](https://dev.office.com/reference/add-ins/shared/settings.set) method to set **Office.AutoShowTaskpaneWithDocument** to **true**, as shown in the following example. Use this method if you need to tag the document as part of your add-in interaction (for example, as soon as the user creates a binding, or chooses an option to indicate that they want the pane to open automatically).  
 
     Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
     Office.context.document.settings.saveAsync();
 
-##### Via Open XML
-You can use Open XML to create or modify a document and add the appropriate Open Office XML markup that implements auto-open. A sample to show how to do this is at [Office-OOXML-EmbedAddin](https://github.com/OfficeDev/Office-OOXML-EmbedAddin). Here is some information you need to implement your own auto-open solution with Open XML.
+#### Use Open XML to tag the document
+You can use Open XML to create or modify a document and add the appropriate Open Office XML markup to trigger the autoopen feature. For a sample that shows you how to do this, see [Office-OOXML-EmbedAddin](https://github.com/OfficeDev/Office-OOXML-EmbedAddin). 
 
-There are two Open XML parts that need to be added to the document.
+Add two Open XML parts to the document:
 
-First, is a webextension part. The following is an example:
+- A webextension part
+- A task pane part
+
+##### webextension part
+The following example shows how to add the webextension part.
 
     <we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="[ADD-IN ID PER MANIFEST]">
       <we:reference id="[GUID or Office Store asset ID]" version="[your add-in version]" store="[Pointer to store or catalog]" storeType="[Store or catalog type]"/>
@@ -74,40 +80,37 @@ First, is a webextension part. The following is an example:
 
 The webextension part includes a property bag and a property named **Office.AutoShowTaskpaneWithDocument** that must be set to `true`.
 
-The webextension part also includes a reference to the store or catalog with attributes for `id`, `storeType`, `store`, and `version`. There are seven store types, but only four of them are relevant to auto-opening add-ins. The values for the other three attributes depend on the value for `storeType` as shown in the following table. 
+The webextension part also includes a reference to the store or catalog with attributes for `id`, `storeType`, `store`, and `version`. Of the `storeType` values, only four are relevant to the autoopen feature. The values for the other three attributes depend on the value for `storeType`, as shown in the following table. 
 
-| When the `storeType` is: | The `id` should be:	|The `store` should be: | The `version` should be:|
+| **`storeType` value** | **`id` value**	|**`store` value** | **version` value**|
 |:---------------|:---------------|:---------------|:---------------|
-|OMEX (The Office Store)|The Office Store asset ID of the add-in.\*|The locale of the Office Store; for example, "en-US".|The version in the Office Store catalog.\*|
+|OMEX (The Office Store)|The Office Store asset ID of the add-in.\*|The locale of the Office Store; for example, en-us.|The version in the Office Store catalog.\*|
 |FileSystem (A network share)|The GUID of the add-in in the add-in manifest.|The path of the network share; for example, "\\\\MyComputer\\MySharedFolder".|The version in the add-in manifest.|
 |EXCatalog (Centralized deployment from Exchange) |The GUID of the add-in in the add-in manifest.|"EXCatalog"|The version in the add-in manifest.
 |Registry (System registry)|The GUID of the add-in in the add-in manifest.|"developer"|The version in the add-in manifest.|
 
->\* To find the asset ID and version of an add-in in the Office Store, navigate to the add-in's page in the Office Store. The asset ID will be in the address bar of the browser. The version will be in the **Details** section of the page.
+>\* To find the asset ID and version of an add-in in the Office Store, go to the Office Store landing page for the add-in. The asset ID appears in the address bar in the browser. The version is in the **Details** section of the page.
 
 For more information about the webextension markup, see [[MS-OWEXML] 2.2.5. WebExtensionReference](https://msdn.microsoft.com/en-us/library/hh695383(v=office.12).aspx).
 
-The second Open XML part that is related to auto-open is a taskpane part. The following is an example.
+##### taskpane part
+The following example shows how to add the taskpane part.
 
     <wetp:taskpane dockstate="right" visibility="0" width="350" row="4" xmlns:wetp="http://schemas.microsoft.com/office/webextensions/taskpanes/2010/11">
       <wetp:webextensionref xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId1" />
     </wetp:taskpane>
 
-The critical attribute here is `visibility` which in this example is set to "0". This means that the first time the document is opened after the two parts have been added, the user has to install the add-in, from the **Add-in** button on the ribbon. On every *subsequent* opening of the file, the taskpane with the add-in opens automatically. Also, setting `visibility` to "0" means that you can use the Office.js to give users the ability to turn on and off the auto-opening of the add-in. Specifically, your script sets the **Office.AutoShowTaskpaneWithDocument** document setting to `true` or `false`. (See above in the **Client side** section.) 
+Note that in this example, the `visibility` attribute is set to "0". This means that after the webextension and taskpane parts are added, the first time the document is opened, the user has to install the add-in from the **Add-in** button on the ribbon. Thereafter, the add-in task pane opens automatically when the file is opened. Also, when you set `visibility` to "0", you can use Office.js to enable users to turn on or turn off the autoopen feature. Specifically, your script sets the **Office.AutoShowTaskpaneWithDocument** document setting to `true` or `false`. (For details, see [Tag the document on the client side](#tag-the-document-on-the-client-side).) 
 
-If `visibility` is set to "1", then the task pane opens automatically the very first time the document is opened after the two parts have been added. A prompt to trust the add-in appears in the task pane, and when the user grants trust, the add-in opens. On every *subsequent* opening of the file, the taskpane with the add-in opens automatically. However, when `visibility` is set to "1", there is no way for Office.js or, hence, your users to turn off the auto-opening of the add-in.  
+If `visibility` is set to "1", the task pane opens automatically the first time the document is opened after the webextension and taskpane parts are added. The user is prompted to trust the add-in, and when trust is granted, the add-in opens. Thereafter, the add-in task pane opens automatically when the file is opened. However, when `visibility` is set to "1", you can't use Office.js to enable users to turn on or turn off the autoopen feature. 
 
-Setting `visibility` to "1" could be a good choice when the add-in and the document's template or content are so closely tied that there's no scenario in which users would not want the add-in to open when the document is opened.
+Setting `visibility` to "1" is a good choice when the add-in and the template or content of the document are so closely integrated that the user would not opt out of the autoopen feature. 
 
-An easy way to figure out the XML you need to write is to first run your add-in and use the client side technique to write the value then save the document and inspect the XML that is generated. Office will detect the store or catalog of the add-in and fill the appropriate attribute values. There is even a tool that will generate the C# code to programmatically add the markup based on the example you produce with the client side technique: [Open XML SDK 2.5 Productivity Tool](https://www.microsoft.com/en-us/download/details.aspx?id=30425).
+>**Note:** If you want to distribute your add-in with the document, so that users are prompted to install it, you must set the visibility property to 1. You can only do this via Open XML.
 
+An easy way to write the XML is to first run your add-in and [tag the document on the client side](#tag-the-document-on-the-client-side) to write the value, and then save the document and inspect the XML that is generated. Office will detect and provide the appropriate attribute values. You can also use the [Open XML SDK 2.5 Productivity Tool](https://www.microsoft.com/en-us/download/details.aspx?id=30425) tool to generate C# code to programmatically add the markup based on the XML you generate.
 
-### Add-in installation requirement
-It is important to highlight that the **pane that you designate will only automatically open IF** , by the time the user opens the document, your **add-in is already installed on the users device**.  If users open a document and they do not have your add-in already installed then nothing will happen, the setting will be ignored. 
+## Additional resources
 
-If you require to also distribute the add-in with the document, so that users are prompted to install it, you also need to set the pane visibility property to 1, you can only do this via OpenXML.
+For a sample that shows you how to use the autoopen feature, see [Office Add-in commands samples](https://github.com/OfficeDev/Office-Add-in-Commands-Samples/tree/master/AutoOpenTaskpane). 
 
-## Samples
-The folder in this repo contains a simple example that shows you how to specify what pane to open on your add-in manifest as well as how to tag a document via Office.js. Additional samples are in the works. 
-
-![](http://i.imgur.com/JtHwr47.png)
