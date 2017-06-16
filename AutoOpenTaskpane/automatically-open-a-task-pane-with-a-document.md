@@ -49,7 +49,7 @@ To specify the task pane to open automatically, set the [TaskpaneId](https://dev
 
 The following example shows the TaskPaneId value set to Office.AutoShowTaskpaneWithDocument.
           
-```
+```xml
     <Action xsi:type="ShowTaskpane">
          <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
          <SourceLocation resid="Contoso.Taskpane.Url" />
@@ -64,7 +64,7 @@ You can tag the document to trigger the autoopen feature in one of two ways.
 #### Tag the document on the client side
 Use the Office.js [settings.set](https://dev.office.com/reference/add-ins/shared/settings.set) method to set **Office.AutoShowTaskpaneWithDocument** to **true**, as shown in the following example.   
 
-```
+```js
     Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
     Office.context.document.settings.saveAsync();
 ```
@@ -81,7 +81,7 @@ Add two Open XML parts to the document:
 
 The following example shows how to add the webextension part.
 
-```
+```xml
     <we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="[ADD-IN ID PER MANIFEST]">
       <we:reference id="[GUID or Office Store asset ID]" version="[your add-in version]" store="[Pointer to store or catalog]" storeType="[Store or catalog type]"/>
       <we:alternateReferences/>
@@ -110,7 +110,7 @@ For more information about the webextension markup, see [[MS-OWEXML] 2.2.5. WebE
 
 The following example shows how to add the taskpane part.
 
-```
+```xml
     <wetp:taskpane dockstate="right" visibility="0" width="350" row="4" xmlns:wetp="http://schemas.microsoft.com/office/webextensions/taskpanes/2010/11">
       <wetp:webextensionref xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId1" />
     </wetp:taskpane>
