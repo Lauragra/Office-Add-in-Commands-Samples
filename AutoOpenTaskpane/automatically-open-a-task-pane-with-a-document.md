@@ -50,10 +50,10 @@ To specify the task pane to open automatically, set the [TaskpaneId](https://dev
 The following example shows the TaskPaneId value set to Office.AutoShowTaskpaneWithDocument.
           
 ```xml
-    <Action xsi:type="ShowTaskpane">
-         <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
-         <SourceLocation resid="Contoso.Taskpane.Url" />
-    </Action>
+<Action xsi:type="ShowTaskpane">
+    <TaskpaneId>Office.AutoShowTaskpaneWithDocument</TaskpaneId>
+    <SourceLocation resid="Contoso.Taskpane.Url" />
+</Action>
 ```     
 
 ### Tag the document to automatically open the task pane
@@ -65,8 +65,8 @@ You can tag the document to trigger the autoopen feature in one of two ways.
 Use the Office.js [settings.set](https://dev.office.com/reference/add-ins/shared/settings.set) method to set **Office.AutoShowTaskpaneWithDocument** to **true**, as shown in the following example.   
 
 ```js
-    Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
-    Office.context.document.settings.saveAsync();
+Office.context.document.settings.set("Office.AutoShowTaskpaneWithDocument", true);
+Office.context.document.settings.saveAsync();
 ```
 
 Use this method if you need to tag the document as part of your add-in interaction (for example, as soon as the user creates a binding, or chooses an option to indicate that they want the pane to open automatically).
@@ -82,15 +82,15 @@ Add two Open XML parts to the document:
 The following example shows how to add the webextension part.
 
 ```xml
-    <we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="[ADD-IN ID PER MANIFEST]">
-      <we:reference id="[GUID or Office Store asset ID]" version="[your add-in version]" store="[Pointer to store or catalog]" storeType="[Store or catalog type]"/>
-      <we:alternateReferences/>
-      <we:properties>
-    	<we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>
-      </we:properties>
-      <we:bindings/>
-      <we:snapshot xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
-    </we:webextension>
+<we:webextension xmlns:we="http://schemas.microsoft.com/office/webextensions/webextension/2010/11" id="[ADD-IN ID PER MANIFEST]">
+  <we:reference id="[GUID or Office Store asset ID]" version="[your add-in version]" store="[Pointer to store or catalog]" storeType="[Store or catalog type]"/>
+  <we:alternateReferences/>
+  <we:properties>
+ 	<we:property name="Office.AutoShowTaskpaneWithDocument" value="true"/>
+  </we:properties>
+  <we:bindings/>
+  <we:snapshot xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
+</we:webextension>
 ```
 
 The webextension part includes a property bag and a property named **Office.AutoShowTaskpaneWithDocument** that must be set to `true`.
@@ -111,9 +111,9 @@ For more information about the webextension markup, see [[MS-OWEXML] 2.2.5. WebE
 The following example shows how to add the taskpane part.
 
 ```xml
-    <wetp:taskpane dockstate="right" visibility="0" width="350" row="4" xmlns:wetp="http://schemas.microsoft.com/office/webextensions/taskpanes/2010/11">
-      <wetp:webextensionref xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId1" />
-    </wetp:taskpane>
+<wetp:taskpane dockstate="right" visibility="0" width="350" row="4" xmlns:wetp="http://schemas.microsoft.com/office/webextensions/taskpanes/2010/11">
+  <wetp:webextensionref xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" r:id="rId1" />
+</wetp:taskpane>
 ```
 
 Note that in this example, the `visibility` attribute is set to "0". This means that after the webextension and taskpane parts are added, the first time the document is opened, the user has to install the add-in from the **Add-in** button on the ribbon. Thereafter, the add-in task pane opens automatically when the file is opened. Also, when you set `visibility` to "0", you can use Office.js to enable users to turn on or turn off the autoopen feature. Specifically, your script sets the **Office.AutoShowTaskpaneWithDocument** document setting to `true` or `false`. (For details, see [Tag the document on the client side](#tag-the-document-on-the-client-side).) 
