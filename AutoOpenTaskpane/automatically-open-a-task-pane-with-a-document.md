@@ -100,7 +100,7 @@ The webextension part also includes a reference to the store or catalog with att
 | **`storeType` value** | **`id` value**	|**`store` value** | **version` value**|
 |:---------------|:---------------|:---------------|:---------------|
 |OMEX (the Office Store)|The Office Store asset ID of the add-in.\*|The locale of the Office Store; for example, "en-us".|The version in the Office Store catalog.\*|
-|FileSystem (a network share)|The GUID of the add-in in the add-in manifest.|The path of the network share; for example, \\\\MyComputer\\MySharedFolder.|The version in the add-in manifest.|
+|FileSystem (a network share)|The GUID of the add-in in the add-in manifest.|The path of the network share; for example, "\\\\MyComputer\\MySharedFolder".|The version in the add-in manifest.|
 |EXCatalog (deployment via the Exchange server) |The GUID of the add-in in the add-in manifest.|"EXCatalog"|The version in the add-in manifest.
 |Registry (System registry)|The GUID of the add-in in the add-in manifest.|"developer"|The version in the add-in manifest.|
 
